@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Медицинский мониторинг</title>
+    <style>
+        :root {
+            --bg: #e8d5f5;
+            --card: #fff;
+            --text: #1e293b;
+            --sub: #7b5ea7;
+            --border: #e0d0f0;
+            --input: #faf5ff;
+        }
+        .dark {
+            --bg: #1a1025;
+            --card: #2d1f3d;
+            --text: #e0d0f0;
+            --sub: #c4a0e8;
+            --border: #4a3570;
+            --input: #3d2a52;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            padding: 5px;
+        }
+        .wrap {
+            max-width: 650px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .top-row {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-bottom: 8px;
+            padding: 5px;
+        }
+        .ico {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            background: var(--card);
+            font-size: 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tabs {
+            background: var(--card);
+            border-radius: 14px;
+            padding: 5px;
+            display: flex;
+            gap: 4px;
+            margin-bottom: 10px;
+        }
+        .tabs button {
+            flex: 1;
+            padding: 14px 8px;
+            border: none;
+            border-radius: 10px;
+            background: transparent;
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--sub);
+            cursor: pointer;
+        }
+        .tabs button.on { background: #9b6fc0; color: #fff; }
+
+        .page {
+            display: none;
+            background: var(--card);
+            border-radius: 16px;
+            padding: 20px 15px;
+        }
+        .page.show { display: block; }
+
+        h2 { color: var(--text); font-size: 20px; margin-bottom: 14px; }
+        h3 { color: var(--sub); font-size: 15px; margin-bottom: 8px; }
+
+        .fld { margin-bottom: 10px; }
+        .fld label {
+            display: block;
+            font-weight: 700;
+            font-size: 13px;
+            color: var(--sub);
+            margin-bottom: 4px;
+        }
+        .fld input, .fld textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: var(--input);
+            color: var(--text);
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        .fld input:focus, .fld textarea:focus { outline: none; border-color: #b388d9; }
+        textarea { resize: vertical; min-height: 60px; }
+        .r2 { display: flex; gap: 8px; }
+        .r2 .fld { flex: 1; }
+        .r3 { display: flex; gap: 8px; }
+        .r3 .fld { flex: 1; }
+
+        .prev {
+            background: var(--input);
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 14px;
+            color: var(--sub);
+            display: none;
+            margin-bottom: 10px;
+            border-left: 4px solid #b388d9;
+        }
+        .prev.on { display: block; }
+
+        .sbox {
+            background: var(--input);
+            padding: 16px;
+            border-radius: 14px;
+            margin: 14px 0;
+            border: 1px solid var(--border);
+        }
+        .slbl {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--sub);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .emoji { text-align: center; font-size: 48px; margin: 4px 0; }
+
+        input[type=range] {
+            width: 100%;
+            height: 12px;
+            border-radius: 6px;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            margin: 14px 0;
+        }
+        .rng-10 {
+            background: linear-gradient(to right,#48bb78,#68d391,#f6e05e,#fbbf24,#f59e0b,#ed8936,#f56565,#e53e3e,#c53030,#9b2c2c);
+        }
+        .rng-5 {
+            background: linear-gradient(to right,#fc8181,#f6ad55,#f6e05e,#68d391,#48bb78,#38a169);
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #fff;
+            border: 3px solid #b388d9;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .vbig { text-align: center; font-size: 40px; font-weight: 800; margin: 4px 0; }
+        .vdsc { text-align: center; font-size: 14px; color: var(--sub); font-weight: 500; }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            color: #fff;
+            background: #9b6fc0;
+            margin-top: 8px;
+        }
+        .btn:active { background: #7b4fa0; }
+        .btn.g { background: #059669; }
+        .btn.r { background: #dc2626; }
+
+        .msg {
+            padding: 12px 14px;
+            border-radius: 10px;
+            margin-top: 10px;
+            font-size: 14px;
+            display: none;
+        }
+        .msg.ok { display: block; background: #d1fae5; color: #065f46; border-left: 4px solid #48bb78; }
+        .msg.er { display: block; background: #fee2e2; color: #991b1b; border-left: 4px solid #fc8181; }
+        .hr { border: none; border-top: 2px solid var(--border); margin: 18px 0; }
+
+        .card {
+            background: var(--input);
+            border-radius: 12px;
+            padding: 14px;
+            margin: 10px 0;
+            border: 1px solid var(--border);
+        }
+        .card p { font-size: 14px; color: var(--text); margin: 3px 0; }
+        .rem {
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            padding: 12px 14px;
+            border-radius: 0 10px 10px 0;
+            font-size: 14px;
+            color: #92400e;
+            margin: 10px 0;
+        }
+        .dark .rem { background: #3d2a00; color: #fbbf24; }
+
+        .sec {
+            position: fixed;
+            bottom: 20px;
+            right: 15px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(155,111,192,0.2);
+            border: 2px solid rgba(179,136,217,0.4);
+            font-size: 22px;
+            cursor: pointer;
+            z-index: 99;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        th, td { padding: 8px 5px; text-align: left; border-bottom: 1px solid var(--border); color: var(--text); }
+        th { background: var(--input); color: var(--sub); font-weight: 700; }
+        .badge { display: inline-block; padding: 3px 8px; border-radius: 14px; font-weight: 700; font-size: 11px; }
+        .badge.l { background: #d1fae5; color: #065f46; }
+        .badge.m { background: #fef3c7; color: #92400e; }
+        .badge.h { background: #fee2e2; color: #991b1b; }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(90,50,120,0.5);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+        .overlay.on { display: flex; }
+        .modal {
+            background: var(--card);
+            border-radius: 18px;
+            padding: 20px;
+            width: 100%;
+            max-width: 420px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .mclose {
+            float: right;
+            background: none;
+            border: none;
+            font-size: 26px;
+            color: #b388d9;
+            cursor: pointer;
+            padding: 5px 10px;
+        }
+        .modal input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 16px;
+            background: var(--input);
+            color: var(--text);
+            margin: 8px 0;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        .bsm {
+            padding: 10px 14px;
+            font-size: 13px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #fff;
+            font-weight: 700;
+            margin: 3px;
+            display: inline-block;
+        }
+
+        @media (max-width: 500px) {
+            .wrap { padding: 0; }
+            .r2, .r3 { flex-direction: column; gap: 0; }
+        }
+
+        @media (min-width: 501px) {
+            .side-l, .side-r {
+                position: fixed;
+                top: 0;
+                width: 40px;
+                height: 100%;
+                z-index: 0;
+                background: linear-gradient(180deg, #9b6fc0, #b388d9);
+                box-shadow: 0 0 20px rgba(155,111,192,0.3);
+            }
+            .side-l { left: 0; }
+            .side-r { right: 0; }
+            .wrap { padding: 0 50px; }
+            .sec { right: 55px; bottom: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="side-l"></div>
+<div class="side-r"></div>
+
+<div class="wrap">
+    <div class="top-row">
+        <button class="ico" id="themeBtn">🌙</button>
+    </div>
+
+    <div class="tabs">
+        <button class="on" id="tabHosp">🏥 В больнице</button>
+        <button id="tabHome">🏠 Дома</button>
+    </div>
+
+    <!-- БОЛЬНИЦА -->
+    <div class="page show" id="pg-hospital">
+        <h2>Оценка после операции</h2>
+        <h3>Данные пациента</h3>
+        <div class="r2">
+            <div class="fld"><label>Фамилия *</label><input id="lastName" placeholder="Иванов"></div>
+            <div class="fld"><label>Имя *</label><input id="firstName" placeholder="Иван"></div>
+        </div>
+        <div class="r3">
+            <div class="fld"><label>Отчество</label><input id="middleName" placeholder="Иванович"></div>
+            <div class="fld"><label>Дата рождения *</label><input type="date" id="birthDate"></div>
+            <div class="fld"><label>Год</label><input id="birthYear" readonly placeholder="Авто"></div>
+        </div>
+        <div class="prev" id="prevBox"><strong id="prevName"></strong>, <span id="prevAge"></span> лет</div>
+
+        <div class="sbox">
+            <h3>Боль (0–10)</h3>
+            <div class="slbl"><span>0 — нет</span><span>5 — терпимо</span><span>10 — очень</span></div>
+            <input type="range" class="rng-10" id="painBefore" min="0" max="10" value="5">
+            <div class="emoji" id="emojiBefore">😐</div>
+            <div class="vbig" id="painBeforeVal">5</div>
+            <div class="vdsc" id="painBeforeText">Терпимая</div>
+        </div>
+        <div class="fld"><label>Описание</label><textarea id="painDesc" placeholder="Где и как болит..."></textarea></div>
+        <button class="btn" id="btnBefore">Отправить оценку боли</button>
+        <div class="msg" id="msgBefore"></div>
+
+        <div class="hr"></div>
+
+        <h3>После обезболивающих</h3>
+        <div class="sbox">
+            <input type="range" class="rng-10" id="painAfter" min="0" max="10" value="3">
+            <div class="emoji" id="emojiAfter">🙂</div>
+            <div class="vbig" id="painAfterVal">3</div>
+            <div class="vdsc" id="painAfterText">Слабая</div>
+        </div>
+        <button class="btn" id="btnAfter">Отправить</button>
+        <div class="msg" id="msgAfter"></div>
+    </div>
+
+    <!-- ДОМА -->
+    <div class="page" id="pg-home">
+        <h2>Самочувствие дома</h2>
+        <div class="r2">
+            <div class="fld"><label>Фамилия *</label><input id="homeLast" placeholder="Иванов"></div>
+            <div class="fld"><label>Имя *</label><input id="homeFirst" placeholder="Иван"></div>
+        </div>
+        <div class="fld"><label>Год рождения *</label><input type="number" id="homeYear" placeholder="1985" min="1920" max="2025"></div>
+
+        <div class="sbox">
+            <h3>Самочувствие (0–5)</h3>
+            <div class="slbl"><span>0 — ужасно</span><span>3 — средне</span><span>5 — отлично</span></div>
+            <input type="range" class="rng-5" id="wellbeing" min="0" max="5" value="3">
+            <div class="emoji" id="emojiHome">😐</div>
+            <div class="vbig" id="wellbeingVal">3</div>
+            <div class="vdsc" id="wellbeingText">Средне</div>
+        </div>
+        <button class="btn" id="btnHome">Отправить</button>
+        <div class="msg" id="msgHome"></div>
+
+        <div class="hr"></div>
+
+        <div class="card">
+            <strong>💊 Лекарства</strong>
+            <p><strong>Цефиксим</strong> — 400 мг (1 таблетка) 1 раз в день</p>
+            <p><strong>Линекс</strong> — 1 капсула 1 раз в день</p>
+            <p><strong>Кеторол</strong> — 1 таблетка при болях (не более 4 в день)</p>
+            <p><strong>Раствор Бетадина</strong> — для обработки послеоперационных швов</p>
+        </div>
+
+        <div class="rem">
+            <strong>⏰ Напоминания</strong><br>
+            08:00 — Цефиксим + Линекс<br>
+            При болях — Кеторол (не чаще 4 раз)<br>
+            Ежедневно — обработка швов Бетадином
+        </div>
+    </div>
+</div>
+
+<button class="sec" id="secretBtn">🔒</button>
+
+<div class="overlay" id="loginOverlay">
+    <div class="modal">
+        <button class="mclose" id="closeLogin">&times;</button>
+        <h3>Вход для врача</h3>
+        <input type="password" id="docPass" placeholder="Пароль">
+        <button class="btn" id="btnLogin">Войти</button>
+        <div class="msg" id="loginMsg"></div>
+        <div id="docPanel" style="display:none;">
+            <div class="hr"></div>
+            <button class="btn g" id="btnShowTable">Смотреть пациентов</button>
+            <button class="btn r" id="btnLogout">Выйти</button>
+        </div>
+    </div>
+</div>
+
+<div class="overlay" id="tableOverlay">
+    <div class="modal" style="max-width:95%;">
+        <button class="mclose" id="closeTable">&times;</button>
+        <h3>Все пациенты</h3>
+        <button class="bsm g" id="btnExport">CSV</button>
+        <button class="bsm" id="btnPrint" style="background:#64748b;">Печать</button>
+        <div style="overflow-x:auto;margin-top:8px;">
+            <table>
+                <thead><tr><th>ID</th><th>ФИО</th><th>Дата рожд.</th><th>Возраст</th><th>ДО</th><th>ПОСЛЕ</th><th>Описание</th><th>Время</th></tr></thead>
+                <tbody id="tableBody"><tr><td colspan="8" style="text-align:center;color:#b388d9;">Нет данных</td></tr></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+var patients = JSON.parse(localStorage.getItem('mp') || '[]');
+function save(){ localStorage.setItem('mp', JSON.stringify(patients)); }
+
+if(!patients.length){
+    patients.push({id:Date.now()-9e5,lastName:'Петров',firstName:'Александр',middleName:'Сергеевич',fullName:'Петров Александр Сергеевич',birthDate:'1980-05-15',birthYear:'1980',painBefore:8,painAfter:3,description:'Острая боль',time:new Date(Date.now()-9e5).toLocaleString('ru-RU')});
+    save();
+}
+
+// Тема
+var dark = false;
+document.getElementById('themeBtn').onclick = function(){
+    dark = !dark;
+    document.body.classList.toggle('dark', dark);
+    this.textContent = dark ? '☀️' : '🌙';
+};
+
+// Табы
+document.getElementById('tabHosp').onclick = function(){
+    document.getElementById('tabHosp').classList.add('on');
+    document.getElementById('tabHome').classList.remove('on');
+    document.getElementById('pg-hospital').classList.add('show');
+    document.getElementById('pg-home').classList.remove('show');
+};
+document.getElementById('tabHome').onclick = function(){
+    document.getElementById('tabHome').classList.add('on');
+    document.getElementById('tabHosp').classList.remove('on');
+    document.getElementById('pg-home').classList.add('show');
+    document.getElementById('pg-hospital').classList.remove('show');
+};
+
+// Эмодзи
+function painEmoji(v){
+    if(v===0) return '😊';
+    if(v<=2) return '🙂';
+    if(v<=4) return '😐';
+    if(v<=6) return '😟';
+    if(v<=8) return '😖';
+    if(v===9) return '😫';
+    return '😵';
+}
+function wellEmoji(v){
+    var arr = ['😫','😟','😐','🙂','😊','🥳'];
+    return arr[v] || '😐';
+}
+
+// Слайдеры
+function setupSlider(sliderId, emojiId, textId, type){
+    var slider = document.getElementById(sliderId);
+    var valEl = document.getElementById(sliderId+'Val');
+    var textEl = document.getElementById(textId);
+    var emojiEl = document.getElementById(emojiId);
+
+    function update(){
+        var v = parseInt(slider.value);
+        valEl.textContent = v;
+        
+        if(type === 'pain'){
+            var texts = ['Нет','Очень слабая','Слабая','Умеренная','Средняя','Терпимая','Сильная','Очень сильная','Невыносимая','Крайне сильная','Мучительная'];
+            textEl.textContent = texts[v];
+            valEl.style.color = v<=3 ? '#48bb78' : v<=6 ? '#f59e0b' : '#e53e3e';
+            emojiEl.textContent = painEmoji(v);
+        } else {
+            var texts = ['Ужасно','Плохо','Не очень','Средне','Хорошо','Замечательно'];
+            textEl.textContent = texts[v];
+            valEl.style.color = v<=1 ? '#fc8181' : v<=2 ? '#f6ad55' : v<=3 ? '#ecc94b' : '#48bb78';
+            emojiEl.textContent = wellEmoji(v);
+        }
+    }
+
+    slider.addEventListener('input', update);
+    slider.addEventListener('change', update);
+    update();
+}
+
+setupSlider('painBefore', 'emojiBefore', 'painBeforeText', 'pain');
+setupSlider('painAfter', 'emojiAfter', 'painAfterText', 'pain');
+setupSlider('wellbeing', 'emojiHome', 'wellbeingText', 'well');
+
+// Дата рождения
+document.getElementById('birthDate').onchange = function(){
+    var d = new Date(this.value);
+    var y = d.getFullYear();
+    document.getElementById('birthYear').value = y;
+    var now = new Date();
+    var age = now.getFullYear() - y;
+    if(now.getMonth() < d.getMonth() || (now.getMonth()===d.getMonth() && now.getDate()<d.getDate())) age--;
+    document.getElementById('prevAge').textContent = age;
+    updPrev();
+};
+
+function updPrev(){
+    var l = document.getElementById('lastName').value.trim();
+    var f = document.getElementById('firstName').value.trim();
+    var m = document.getElementById('middleName').value.trim();
+    if(l||f){
+        document.getElementById('prevName').textContent = [l,f,m].filter(Boolean).join(' ');
+        document.getElementById('prevBox').classList.add('on');
+    } else {
+        document.getElementById('prevBox').classList.remove('on');
+    }
+}
+
+document.getElementById('lastName').oninput = updPrev;
+document.getElementById('firstName').oninput = updPrev;
+document.getElementById('middleName').oninput = updPrev;
+
+// Сообщения
+function showMsg(id, text, ok){
+    var el = document.getElementById(id);
+    el.textContent = (ok?'✅ ':'❌ ')+text;
+    el.className = 'msg '+(ok?'ok':'er');
+    setTimeout(function(){ el.className = 'msg'; }, 3500);
+}
+
+// Валидация
+function valid(){
+    var l = document.getElementById('lastName').value.trim();
+    var f = document.getElementById('firstName').value.trim();
+    var d = document.getElementById('birthDate').value;
+    if(!l){ showMsg('msgBefore','Введите фамилию',false); return false; }
+    if(!f){ showMsg('msgBefore','Введите имя',false); return false; }
+    if(!d){ showMsg('msgBefore','Укажите дату рождения',false); return false; }
+    var y = new Date(d).getFullYear();
+    if(y<1920 || y>new Date().getFullYear()){ showMsg('msgBefore','Некорректная дата',false); return false; }
+    return true;
+}
+
+// Отправка ДО
+document.getElementById('btnBefore').onclick = function(){
+    if(!valid()) return;
+    var l = document.getElementById('lastName').value.trim();
+    var f = document.getElementById('firstName').value.trim();
+    var m = document.getElementById('middleName').value.trim();
+    var bd = document.getElementById('birthDate').value;
+    var by = document.getElementById('birthYear').value;
+    var full = [l,f,m].filter(Boolean).join(' ');
+    
+    var rec = {
+        id: Date.now(),
+        lastName:l, firstName:f, middleName:m,
+        fullName:full, birthDate:bd, birthYear:by,
+        painBefore: +document.getElementById('painBefore').value,
+        painAfter: null,
+        description: document.getElementById('painDesc').value,
+        time: new Date().toLocaleString('ru-RU')
+    };
+    
+    var idx = -1;
+    for(var i=patients.length-1;i>=0;i--){
+        if(patients[i].painAfter===null && patients[i].lastName===l && patients[i].firstName===f && patients[i].birthDate===bd){
+            idx = i; break;
+        }
+    }
+    if(idx>=0) patients[idx] = rec;
+    else patients.push(rec);
+    save();
+    showMsg('msgBefore','Оценка отправлена врачу',true);
+};
+
+// Отправка ПОСЛЕ
+document.getElementById('btnAfter').onclick = function(){
+    if(!valid()) return;
+    var l = document.getElementById('lastName').value.trim();
+    var f = document.getElementById('firstName').value.trim();
+    var bd = document.getElementById('birthDate').value;
+    var v = +document.getElementById('painAfter').value;
+    
+    var found = false;
+    for(var i=patients.length-1;i>=0;i--){
+        if(patients[i].painAfter===null && patients[i].lastName===l && patients[i].firstName===f && patients[i].birthDate===bd){
+            patients[i].painAfter = v;
+            save();
+            showMsg('msgAfter','Оценка после лекарств сохранена',true);
+            found = true;
+            break;
+        }
+    }
+    if(!found) showMsg('msgAfter','Сначала отправьте оценку ДО',false);
+};
+
+// Отправка дома
+document.getElementById('btnHome').onclick = function(){
+    var l = document.getElementById('homeLast').value.trim();
+    var f = document.getElementById('homeFirst').value.trim();
+    var y = document.getElementById('homeYear').value;
+    if(!l||!f||!y){ showMsg('msgHome','Заполните все поля',false); return; }
+    var w = +document.getElementById('wellbeing').value;
+    var arr = ['Ужасно','Плохо','Не очень','Средне','Хорошо','Замечательно'];
+    showMsg('msgHome',l+' '+f+': '+w+'/5 — '+arr[w],true);
+};
+
+// Врач
+document.getElementById('secretBtn').onclick = function(){
+    document.getElementById('loginOverlay').classList.add('on');
+};
+document.getElementById('closeLogin').onclick = function(){
+    document.getElementById('loginOverlay').classList.remove('on');
+};
+document.getElementById('btnLogin').onclick = function(){
+    // НОВЫЙ ПАРОЛЬ: zy!H0k#q1
+    if(document.getElementById('docPass').value==='zy!H0k#q1'){
+        document.getElementById('docPanel').style.display='block';
+        showMsg('loginMsg','Доступ разрешён',true);
+    } else {
+        showMsg('loginMsg','Неверный пароль',false);
+    }
+};
+document.getElementById('btnLogout').onclick = function(){
+    document.getElementById('docPanel').style.display='none';
+    document.getElementById('docPass').value='';
+    document.getElementById('loginMsg').className='msg';
+    document.getElementById('loginOverlay').classList.remove('on');
+    document.getElementById('tableOverlay').classList.remove('on');
+};
+document.getElementById('btnShowTable').onclick = function(){
+    var tb = document.getElementById('tableBody');
+    if(!patients.length){
+        tb.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#b388d9;">Нет данных</td></tr>';
+    } else {
+        var h = '';
+        for(var i=0;i<patients.length;i++){
+            var p = patients[i];
+            var b1 = p.painBefore<=3?'l':p.painBefore<=6?'m':'h';
+            var b2 = p.painAfter!==null?(p.painAfter<=3?'l':p.painAfter<=6?'m':'h'):'';
+            var bd = new Date(p.birthDate);
+            var age = new Date().getFullYear()-bd.getFullYear();
+            h += '<tr><td>#'+String(p.id).slice(-4)+'</td><td><strong>'+p.fullName+'</strong></td><td>'+p.birthDate+'</td><td>'+age+'</td><td><span class="badge '+b1+'">'+p.painBefore+'/10</span></td><td>'+(p.painAfter!==null?'<span class="badge '+b2+'">'+p.painAfter+'/10</span>':'—')+'</td><td>'+(p.description||'—')+'</td><td>'+p.time+'</td></tr>';
+        }
+        tb.innerHTML = h;
+    }
+    document.getElementById('tableOverlay').classList.add('on');
+};
+document.getElementById('closeTable').onclick = function(){
+    document.getElementById('tableOverlay').classList.remove('on');
+};
+
+// Экспорт CSV
+document.getElementById('btnExport').onclick = function(){
+    var csv = 'ID;ФИО;Дата рождения;Возраст;Боль ДО;Боль ПОСЛЕ;Описание;Время\n';
+    for(var i=0;i<patients.length;i++){
+        var p = patients[i];
+        csv += p.id+';'+p.fullName+';'+p.birthDate+';'+(new Date().getFullYear()-new Date(p.birthDate).getFullYear())+';'+p.painBefore+'/10;'+(p.painAfter!==null?p.painAfter+'/10':'—')+';'+p.description+';'+p.time+'\n';
+    }
+    var blob = new Blob(['\uFEFF'+csv],{type:'text/csv'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'patients.csv';
+    a.click();
+};
+
+// Печать
+document.getElementById('btnPrint').onclick = function(){
+    var w = window.open('','','width=800,height=600');
+    w.document.write('<meta charset="utf-8"><style>table{border-collapse:collapse}th,td{border:1px solid #000;padding:5px;font-size:12px}</style><h2>Пациенты</h2>'+document.getElementById('tableBody').parentElement.outerHTML);
+    w.document.close();
+    w.print();
+};
+
+// Закрытие модалок по клику на фон
+document.getElementById('loginOverlay').onclick = function(e){
+    if(e.target === this) this.classList.remove('on');
+};
+document.getElementById('tableOverlay').onclick = function(e){
+    if(e.target === this) this.classList.remove('on');
+};
+</script>
+
+</body>
+</html>
